@@ -369,6 +369,21 @@ medusa -h 192.168.56.101 -U smb_users.txt -P senhas_spray.txt -M smbnt -t 2 -T 5
 
 
 
+------
+
+
+## Teste de login com o usuário msfadmin:
+
+
+<img width="661" height="608" alt="image" src="https://github.com/user-attachments/assets/de03df06-91ac-483e-a220-e45488815b81" />
+
+
+
+------
+
+
+
+
 
 
 
