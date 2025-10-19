@@ -1,7 +1,7 @@
 # Projeto Medusa Kali Linux — Laboratório de Ataques de Força Bruta
 
 
-## Aviso Legal
+## ❗❗ Aviso Legal ❗❗️
 
 Todos os testes descritos neste projeto foram realizados **somente em ambiente controlado** (Kali Linux + Metasploitable2/DVWA). Não tente executar esses comandos em sistemas sem autorização.
 
@@ -21,13 +21,6 @@ Simular ataques de força bruta em serviços comuns (FTP, SMB e formulários web
 * **Rede:** Host-Only/Internal Network
 * **Estrutura de pastas do projeto:**
 
-```
-README.md
-/images/
-/wordlists/
-/scripts/
-/reports/
-```
 
 ---
 
@@ -40,6 +33,47 @@ README.md
 
 
 ---
+## TESTE DE CONEXÃO
+
+Para verificar a conectividade entre as duas máquinas virtuais, utilize o comando ``ping`` para enviar pacotes ICMP e confirmar se os hosts conseguem se comunicar.`` ping -c 3 [IP do Metasploitable2]``
+
+Exemplo:
+
+``ping -c 3 192.168.56.101``
+
+<img width="1056" height="633" alt="pingdamaquina" src="https://github.com/user-attachments/assets/9652c021-ca3f-4428-897c-6864dc6386e2" />
+
+
+---
+
+## 📡 Reconhecimento das portas com Nmap
+O primeiro passo no processo de varredura é executar o ``nmap``, que nos permitirá identificar serviços ativos e portas abertas. nmap [endereço_ip_do_metasploitable2]
+
+``nmap 192.168.56.101``
+
+🔽 Saída esperada:
+
+
+<img width="772" height="764" alt="nmapcmand" src="https://github.com/user-attachments/assets/3f833af3-5710-4883-938d-996c958ec110" />
+
+
+Vamos focar nas portas 21, 22, 80, 445 e 139 com o comando:
+
+``nmap -sV -p 21,22,80,445,139 192.168.56.101``
+
+
+<img width="901" height="594" alt="nmapsaida" src="https://github.com/user-attachments/assets/c6fc742d-7330-4f58-b422-8c7ffbd7a67e" />
+
+---
+
+## Ataque de força bruta no serviço FTP
+Durante a análise, observamos que a porta 21/TCP está ativa, indicando a presença de um serviço FTP (File Transfer Protocol).
+Esse protocolo é utilizado para movimentação de arquivos entre sistemas e pode ser alvo de ataques de força bruta, caso não esteja devidamente protegido.
+
+A identificação da porta foi feita por meio do Nmap:
+
+
+
 
 ## Wordlists
 
@@ -138,16 +172,3 @@ hydra -l admin -P wordlists/passwords.txt 192.168.56.101 http-post-form "/dvwa/l
 
 ---
 
-## 8) Mensagens de commit sugeridas
-
-* `feat: add initial lab structure and README`
-* `test: add medusa ftp and smb test scripts`
-* `docs: add final report and mitigation recommendations`
-
----
-
-## 9) Próximos passos recomendados
-
-* Expandir wordlists e reexecutar testes controlados
-* Testar ferramentas alternativas e automações
-* Gerar PDF a partir do Markdown para anexar ao repositório
